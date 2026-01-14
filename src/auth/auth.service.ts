@@ -52,7 +52,7 @@ export class AuthService {
             throw new UnauthorizedException('Credenciales inválidas');
         }
 
-        const token = this.jwtService.sign({ id: exists.id, email: exists.email });
+        const token = this.jwtService.sign({ id: exists.id, nombre: exists.nombre, email: exists.email });
 
         return {
             message: 'Login exitoso',
