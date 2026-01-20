@@ -76,7 +76,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             // 3. Usa esta clave para recalcular la firma
             // 4. Compara la firma calculada con la firma del token
             // 5. Si coinciden → token válido, si no → token rechazado
-            secretOrKey: JWT_SECRET,
+            secretOrKey: 'supersecreto123',
         });
     }
 
@@ -115,11 +115,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         //
         // NOTA: Retornamos solo los datos necesarios, no todo el payload
         // Esto es una buena práctica de seguridad (principio de mínimo privilegio)
-        return {
-            userId: payload.sub,      // Mapeamos "sub" a "userId" para mayor claridad
-            email: payload.email,     // Email del usuario autenticado
-            nombre: payload.nombre,   // Nombre del usuario autenticado
-        };
+                    return {
+                userId: payload.id,
+                email: payload.email,
+                nombre: payload.nombre,
+            };
 
         // NOTA AVANZADA: Aquí podríamos hacer validaciones adicionales:
         // - Verificar que el usuario aún existe en la base de datos

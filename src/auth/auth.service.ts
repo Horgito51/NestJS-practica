@@ -1,14 +1,13 @@
 import {
     Injectable,
     ConflictException,
-    UnauthorizedException
+    UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcrypt';
-import { PerformanceObserverEntryList } from 'node:perf_hooks';
 
 @Injectable()
 export class AuthService {
@@ -41,41 +40,45 @@ export class AuthService {
         };
     }
 
-    async login(loginDto: LoginDto) {
-        const exists = await this.usersService.findByEmail(loginDto.email);
-        if (!exists) {
-            throw new UnauthorizedException('Credenciales inválidas');
-        }
+async login(loginDto: LoginDto) {
+  const user = await this.usersService.findByEmail(loginDto.email);
+  if (!user) {
+    throw new UnauthorizedException('Credenciales inválidas');
+  }
 
-        const isMatch = await bcrypt.compare(loginDto.password, exists.password);
-        if (!isMatch) {
-            throw new UnauthorizedException('Credenciales inválidas');
-        }
+  const isMatch = await bcrypt.compare(loginDto.password, user.password);
+  if (!isMatch) {
+    throw new UnauthorizedException('Credenciales inválidas');
+  }
 
-        const token = this.jwtService.sign({ id: exists.id, nombre: exists.nombre, email: exists.email });
+  const token = this.jwtService.sign({
+    id: user.id,
+    email: user.email,
+    nombre: user.nombre,
+  });
 
-        return {
-            message: 'Login exitoso',
-            profile: this.getProfile(exists.id),
-            accessToken: token,
-        };
+  return {
+    message: 'Login exitoso',
+    profile: await this.getProfile(user.id),
+    accessToken: token,
+  };
+}
+
+
+
+async getProfile(userId: number) {
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+        throw new UnauthorizedException('Usuario no encontrado');
     }
 
+    const { password, ...userWithoutPassword } = user;
 
-    getProfile(userId: number) {
-        // Buscar el usuario por ID
-        const user = this.usersService.findById(userId);
+    return {
+        message: 'Perfil obtenido exitosamente',
+        user: userWithoutPassword,
+    };
+}
 
-        if (!user) {
-            throw new UnauthorizedException('Usuario no encontrado');
-        }
-
-        // Retornar datos del usuario sin la contraseña
-        const { password, ...userWithoutPassword } = user;
-
-        return {
-            message: 'Perfil obtenido exitosamente',
-            user: userWithoutPassword,
-        };
-    }
 }

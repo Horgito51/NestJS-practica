@@ -11,7 +11,7 @@ import { JwtStrategy, JWT_SECRET } from './strategies/jwt.strategy';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: 'CLAVE_SUPER_SECRETA_123456',
+      secret: 'supersecreto123',
       signOptions: { expiresIn: '24h' }, // Token válido por 24 horas
     }),
   ],
